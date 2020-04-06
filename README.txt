@@ -1,4 +1,10 @@
 
+DESCRIPTION
+
+A library of functions useful for querying and comparing nucleotide sequences.
+
+
+
 REQUIREMENTS
 
 This program runs in Python 2. It will not work properly with Python 3.
@@ -10,7 +16,7 @@ Please ensure you are using the correct version of Python to run this program.
 
 
 INSTRUCTIONS
-12345678901234567890123456789012345678901234567890123456789012345678901234567890
+
 You don't need to know how to use git to use this program. You can simply open
 "NSeq_Match.py" in your online browser and copy it's contents onto a local file 
 on your computer with the same name.
