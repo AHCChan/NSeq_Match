@@ -35,6 +35,8 @@ STR__invalid_mode = "\nERROR: Invalid compare mode specified."
 STR__seqs_must_be_equal_length = "\nERROR: Input sequences must be the same "\
         "length."
 
+STR__query_seq_must_be_shorter = "\nERROR: Query sequences must be shorter "\
+        "than the original sequence."
 
 
 # Lists ########################################################################
@@ -135,7 +137,90 @@ for seq1 in LIST__all_n:
 
 # Functions ####################################################################
 
-def NSeq_Match(original, query, mode):
+def NSeq_Search(original, query, threshold=0, mode=MATCH_TYPE.ONE):
+    """
+    NOTE: This is an inefficient but more comprehensive function with N^2
+    scaling. It is intended to be used with relatively short sequences.
+    
+    Return a list of candidate positions for the [query] sequences within the
+    [original] sequence. A position is a candidate position if the subsequence
+    beginning at said position has [threshold] or fewer matches or mismatches.
+    Whether the results are calculated based on matches or mismatches depends on
+    the [mode].
+    
+    Return the results as a list of pairs. Each pair consists of two ints, the
+    first representing a positional index and the second representing the number
+    of matches/mismatches.
+
+    @original
+            (str - DNA Sequence)
+    
+    @query
+            (str - DNA Sequence)
+    
+    @threshold
+            (int)
+            The maximum permissible number of matches/mismatches.
+    
+    @mode
+            (int)
+            An integer that determines the comparison method and the output:
+
+                1: ONE_DIRECTIONAL_QUERY (default)
+            
+                    Return the number of mismatches.
+                    A definite [query] nucleotide will match against an
+                    ambiguous [original] nucleotide, but not vice versa.
+        
+                2: TWO_DIRECTIONAL_COMPARISON
+            
+                    Return the number of mismatches.
+                    A definite [query] nucleotide will match against an
+                    ambiguous [original] nucleotide, and vice versa.
+        
+                3: TWO_DIRECTIONAL_COMPARISON_NOT
+            
+                    Return the number of matches.
+                    A definite [query] nucleotide will match against an
+                    ambiguous [original] nucleotide, and vice versa.
+        
+                4: STRICT_MATCH
+            
+                    Return the number of strict matches.
+        
+                5: STRICT_MATCH_NOT
+            
+                    Return the number of mismatches and potential mismatches.
+    
+    NSeq_Search(str, str, int, int) -> list<[int, int]>
+    """
+    # Lengths and range
+    length_query = len(query)
+    length_original = len(original)
+    length_difference = length_original - length_query
+    if length_difference < 0: raise Exception(STR__query_seq_must_be_shorter)
+    
+    # Setup
+    range_ = range(length_difference)
+    temp = [0] * length_difference
+    results = []
+    
+    # Looping through the original
+    for i in range_:
+        for j in range(length_query):
+            temp[i] += NSeq_Match(original[i+j], query[j], mode)
+    
+    # Compile qualified results
+    for i in range_:
+        n = temp[i]
+        if n <= threshold: results.append([i, n])
+    
+    # Return results
+    return results
+
+
+
+def NSeq_Match(original, query, mode=MATCH_TYPE.ONE):
     """
     Compare [query] string against [original] and return the number of
     matches/mismatches. The returned value is calcuated differently depending on
@@ -151,7 +236,7 @@ def NSeq_Match(original, query, mode):
             (int)
             An integer that determines the comparison method and the output:
 
-                1: ONE_DIRECTIONAL_QUERY
+                1: ONE_DIRECTIONAL_QUERY (default)
             
                     Return the number of mismatches.
                     A definite [query] nucleotide will match against an
