@@ -30,6 +30,11 @@ class MATCH_TYPE:
 
 # Strings ######################################################################
 
+STR__invalid_mode = "\nERROR: Invalid compare mode specified."
+
+STR__seqs_must_be_equal_length = "\nERROR: Input sequences must be the same "\
+        "length."
+
 
 
 # Lists ########################################################################
@@ -94,7 +99,7 @@ DICT__matchesX = {
 
 DICT__n_match__1 = {} # 1-way match with an original and a query
 DICT__n_match__2 = {} # 2-way match; potential matches can go both ways
-DICT__n_match__N = {} # 2-way anti-match. Opposite of DICT__n_match__2
+DICT__n_match__2N = {} # 2-way anti-match. Opposite of DICT__n_match__2
 
 
 
@@ -124,7 +129,7 @@ for seq1 in LIST__all_n:
             temp1[seq2] = 1
             temp2[seq2] = 0
     DICT__n_match__2[seq1] = temp1
-    DICT__n_match__N[seq1] = temp2
+    DICT__n_match__2N[seq1] = temp2
 
 
 
@@ -135,37 +140,54 @@ def NSeq_Match(original, query, mode):
     Compare [query] string against [original] and return the number of
     matches/mismatches. The returned value is calcuated differently depending on
     [mode].
+    
+    Assumes [original] and [query] are the same length.
+    
+    @original
+            (str - DNA Sequence)
+    @query
+            (str - DNA Sequence)
+    @mode
+            (int)
+            An integer that determines the comparison method and the output:
 
-        1: ONE_DIRECTIONAL_QUERY
+                1: ONE_DIRECTIONAL_QUERY
             
-            Return the number of mismatches.
-            A definite [query] nucleotide will match against an ambiguous
-            [original] nucleotide, but not vice versa.
+                    Return the number of mismatches.
+                    A definite [query] nucleotide will match against an
+                    ambiguous [original] nucleotide, but not vice versa.
         
-        2: TWO_DIRECTIONAL_COMPARISON
+                2: TWO_DIRECTIONAL_COMPARISON
             
-            Return the number of mismatches.
-            A definite [query] nucleotide will match against an ambiguous
-            [original] nucleotide, and vice versa.
+                    Return the number of mismatches.
+                    A definite [query] nucleotide will match against an
+                    ambiguous [original] nucleotide, and vice versa.
         
-        3: TWO_DIRECTIONAL_COMPARISON_NOT
+                3: TWO_DIRECTIONAL_COMPARISON_NOT
             
-            Return the number of matches.
-            A definite [query] nucleotide will match against an ambiguous
-            [original] nucleotide, and vice versa.
+                    Return the number of matches.
+                    A definite [query] nucleotide will match against an
+                    ambiguous [original] nucleotide, and vice versa.
         
-        4: STRICT_MATCH
+                4: STRICT_MATCH
             
-            Return the number of strict matches.
+                    Return the number of strict matches.
         
-        5: STRICT_MATCH_NOT
+                5: STRICT_MATCH_NOT
             
-            Return the number of mismatches and potential mismatches.
+                    Return the number of mismatches and potential mismatches.
     
     NChar_Compare_1(str, str, int) -> int
     """
+    length = len(original)
+    if length != len(query): raise Exception(STR__seqs_must_be_equal_length)
+    range_ = range(length)
+    
     result = 0
+    for i in range_: result += NChar_Compare(original[i], query[i], mode)
+    
     return result
+
 
 
 def NChar_Compare(original, query, mode):
@@ -210,7 +232,7 @@ def NChar_Compare(original, query, mode):
     elif mode == MATCH_TYPE.STRICT_NOT:
         if original == query: return 1
         return 0
-    else: raise Exception # Invalid mode specified
+    else: raise Exception(STR__invalid_mode) # Invalid mode specified
 
 def NChar_Compare_1(original, query):
     """
@@ -246,7 +268,7 @@ def NChar_Compare_2N(seq1, seq2):
     
     NChar_Compare_2N(str, str) -> int
     """
-    return DICT__n_match__2[seq1][seq2]
+    return DICT__n_match__2N[seq1][seq2]
 
 
 
