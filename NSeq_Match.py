@@ -1,6 +1,6 @@
 HELP_DOC = """
 NUCLEOTIDE SEQUENCE MATCHER
-(version 1.0)
+(version 2.0)
 by Angelo Chan
 
 This is a library of functions useful for querying and comparing nucleotide
@@ -83,6 +83,10 @@ LIST__n_matchX__X = LIST__n_matchX__N
 
 # Dictionaries #################################################################
 
+DICT__complements = {"B": "V", "V": "B", "D": "H", "H": "D",
+    "R": "Y", "Y": "R", "S": "S", "W": "W", "M": "M", "K": "K",
+    "A": "T", "T": "A", "C": "G", "G": "C", "N": "N", "X": "X"}
+
 DICT__matches = {
     "A": LIST__n_match__A, "C": LIST__n_match__C, "G": LIST__n_match__G,
     "T": LIST__n_match__T, "R": LIST__n_match__R, "Y": LIST__n_match__Y,
@@ -136,6 +140,136 @@ for seq1 in LIST__all_n:
 
 
 # Functions ####################################################################
+
+def Get_Complement(sequence, reverse=True):
+    """
+    Return the complement of the given nucleotide [sequence].
+    
+    If [reverse] is True, then the output sequence will be given in the 5' to 3'
+    format. If [reverse] is False, then the output sequence will be in the same
+    direction as the original sequence.
+
+    @sequence
+            (str - DNA Sequence)
+    @reverse
+            (bool)
+            Whether the resulting sequence should be given in the 5' to 3'
+            format, or be given in the same direction as the original sequence.
+    
+    Get_Complement(str, bool) -> str
+    """
+    sb = ""
+    for n in sequence:
+        c = DICT__complements[n]
+        if reverse: sb = c + sb
+        else: sb += c
+    return sb
+
+
+
+def Get_Earliest_Candidate_Match_Position(original, query, threshold=0,
+            mode=MATCH_TYPE.ONE):
+    """
+    This function has not yet been implemented.
+    """
+    # Initial transformation and setup
+    original = list(original)
+    original_length = len(original)
+    original_range = range(original_length)
+    
+    query = list(query)
+    query_length = len(query)
+    query_range = range(query_length)
+    
+    difference = original_length - query_length
+    candidate_range = range(difference)
+    
+    # Modified Boyer-Moore setup
+    raise Exception("FUNCTION NOT YET IMPLEMENTED")
+
+
+
+def Candidate_Match_Position__TAIL(original, query, threshold=0,
+            mode=MATCH_TYPE.ONE):
+    """
+    NOTE: This is an inefficient but more comprehensive function with N^2
+    scaling. It is intended to be used with relatively short sequences.
+    
+    Return the earliest index at the tail end of the original sequence which
+    might contain the query sequence.
+    
+    Return None if no suitable matches are found.
+    
+    @original
+            (str - DNA Sequence)
+            Needs to be the same length as @query.
+    
+    @query
+            (str - DNA Sequence)
+            Needs to be the same length as @original.
+    
+    @threshold
+            (int)
+            The maximum permissible number of matches/mismatches.
+    
+    @mode
+            (int)
+            See NSeq_Match.
+    
+    Candidate_Match_Position__TAIL(str, str, int, int) -> int
+    Candidate_Match_Position__TAIL(str, str, int, int) -> None
+    """
+    length_o = len(original)
+    length_q = len(query)
+    subseq = original[-length_q:]
+    position = Candidate_Match_Position__TAIL_EQUAL(subseq, query)
+    if position == None: return None
+    return length_o - length_q + position
+
+
+
+def Candidate_Match_Position__TAIL_EQUAL(original, query, threshold=0,
+            mode=MATCH_TYPE.ONE):
+    """
+    NOTE: This is an inefficient but more comprehensive function with N^2
+    scaling. It is intended to be used with relatively short sequences.
+    
+    Return the earliest index at which the original sequence might contain the
+    query sequence. Assumes the two sequences are the same length.
+    
+    Return None if no suitable matches are found.
+    
+    @original
+            (str - DNA Sequence)
+            Needs to be the same length as @query.
+    
+    @query
+            (str - DNA Sequence)
+            Needs to be the same length as @original.
+    
+    @threshold
+            (int)
+            The maximum permissible number of matches/mismatches.
+    
+    @mode
+            (int)
+            See NSeq_Match.
+
+    Candidate_Match_Position__TAIL_EQUAL(str, str, int, int) -> int
+    Candidate_Match_Position__TAIL_EQUAL(str, str, int, int) -> None
+    """
+    query += "-"
+    length = len(original)
+    range_ = range(length)
+    for i in range_:
+        temp_original = original[i:]
+        temp_query = query[:-i-1]
+        print temp_original, temp_query
+        mismatches = NSeq_Match(temp_original, temp_query, mode)
+        if mismatches <= threshold: return i
+    return None
+    
+
 
 def NSeq_Search(original, query, threshold=0, mode=MATCH_TYPE.ONE):
     """
