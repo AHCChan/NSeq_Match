@@ -1,6 +1,6 @@
 HELP_DOC = """
 NUCLEOTIDE SEQUENCE MATCHER
-(version 2.0)
+(version 2.1)
 by Angelo Chan
 
 This is a library of functions useful for querying and comparing nucleotide
@@ -106,6 +106,9 @@ DICT__matchesX = {
 DICT__n_match__1 = {} # 1-way match with an original and a query
 DICT__n_match__2 = {} # 2-way match; potential matches can go both ways
 DICT__n_match__2N = {} # 2-way anti-match. Opposite of DICT__n_match__2
+
+DICT__mismatches = {"A": LIST__n_match__B, "C": LIST__n_match__D,
+    "G": LIST__n_match__H, "T": LIST__n_match__V}
 
 
 
