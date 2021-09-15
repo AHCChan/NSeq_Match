@@ -1,4 +1,4 @@
-HELP_DOC = """
+"""
 NUCLEOTIDE SEQUENCE MATCHER
 (version 2.1)
 by Angelo Chan
